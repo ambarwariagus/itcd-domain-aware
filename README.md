@@ -291,7 +291,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 For questions or issues, please open an issue on GitHub or contact:
 - **Author:** Agus Ambarwari
-- **Email:** [Your email here]
+- **Email:** ambarwariagus@gmail.com
 
 ## Changelog
 
