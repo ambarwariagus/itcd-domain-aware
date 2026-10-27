@@ -1,37 +1,31 @@
-# Original Notebooks
+# Notebooks
 
-This directory contains the original Jupyter notebooks that were used to develop the pipeline.
+## Google Colab Launcher
 
-These notebooks are kept for reference and documentation purposes.
+Use **[ITCD_Domain_Aware.ipynb](ITCD_Domain_Aware.ipynb)** as the supported interface for this project. It mounts Google Drive, clones the latest source from GitHub, installs `segment-geospatial` and Detectron2, generates a Colab-specific configuration, and runs `main.py` from the cloned repository.
 
-## Files
+Before running it, enable a GPU runtime in Google Colab and prepare Google Drive as follows:
 
-- **_tiling.ipynb** - Original tiling notebook using samgeo
-- **_prepare_label.ipynb** - Detectron2 inference and RLE to LabelMe conversion
-- **_spatial_nms.ipynb** - Spatial NMS algorithm (Ball et al.)
-- **dc_gnms_algorithm.ipynb** - DC-GNMS algorithm implementation
-
-## Usage
-
-These notebooks are **not required** for running the pipeline. They are included as:
-- Reference for the original workflow
-- Documentation of algorithm development
-- Examples for understanding the implementation
-
-## Running Notebooks (Optional)
-
-If you want to run the original notebooks:
-
-```bash
-# Install Jupyter
-conda install jupyter
-
-# Launch Jupyter
-jupyter notebook
+```
+MyDrive/ITCD_Domain_Aware/
+├── input/
+│   └── your_image.tif
+├── models/
+│   └── 250525_R50_RESTOR_fold_0/
+│       ├── config.yaml
+│       └── model_best_AP50.pth
+└── output/
 ```
 
-Then navigate to this directory and open the notebooks.
+Update the paths in the notebook configuration cell if you use a different Google Drive directory.
 
-## Note
+## Original Development Notebooks
 
-The production pipeline uses the Python modules in `src/` directory, which are extracted and refactored versions of these notebooks.
+The following notebooks are retained only as development references:
+
+- `_tiling.ipynb` — tiling with samgeo
+- `_prepare_label.ipynb` — Detectron2 inference and RLE-to-LabelMe conversion
+- `_spatial_nms.ipynb` — Spatial NMS implementation
+- `dc_gnms_algorithm.ipynb` — DC-GNMS implementation
+
+The production source code is maintained in `src/`; do not edit pipeline logic directly in the Colab launcher.

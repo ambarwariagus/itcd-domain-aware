@@ -28,6 +28,7 @@ data/input/*.tif
 data/input/*.tiff
 *.tif
 *.tiff
+*.aux.xml
 
 # Model weights
 models/**/*.pth

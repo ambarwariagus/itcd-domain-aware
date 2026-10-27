@@ -13,23 +13,16 @@ Automated pipeline for Individual Tree Crown Detection (ITCD) from aerial imager
 - ⚙️ Configuration-driven workflow
 - 📦 Single command execution
 
-## Installation
+## Google Colab
 
-### 1. Clone Repository
+Project ini dirancang untuk dijalankan melalui [Google Colab](notebooks/ITCD_Domain_Aware.ipynb). Notebook akan me-mount Google Drive, clone source code terbaru dari repository ini, menginstal `segment-geospatial` dan Detectron2, membuat konfigurasi, lalu menjalankan pipeline.
 
-```bash
-git clone https://github.com/ambarwariagus/itcd-domain-aware.git
-cd itcd-domain-aware
-```
+1. Buka `notebooks/ITCD_Domain_Aware.ipynb` di Google Colab dan aktifkan GPU.
+2. Simpan input GeoTIFF dan model weights di Google Drive.
+3. Ubah `DRIVE_ROOT`, `INPUT_IMAGE`, dan `MODEL_DIR` pada bagian konfigurasi notebook.
+4. Jalankan cell secara berurutan.
 
-### 2. Create Conda Environment
-
-```bash
-conda env create -f environment.yml
-conda activate itcd-domain-aware
-```
-
-### 3. Download Model Weights
+### Model Weights
 
 Download the pre-trained Detectron2 model from Google Drive:
 
@@ -48,56 +41,23 @@ See [models/README.md](models/README.md) for detailed instructions.
 
 ## Quick Start
 
-### 1. Prepare Your Data
+1. Open [`notebooks/ITCD_Domain_Aware.ipynb`](notebooks/ITCD_Domain_Aware.ipynb) in Google Colab.
+2. Set the Colab runtime to **GPU**.
+3. Run the Drive mount, GitHub clone, and dependency-installation cells.
+4. Update the Google Drive paths in the configuration cell.
+5. Run the pipeline cell.
 
-Place your GeoTIFF file in `data/input/`:
+The final GeoPackage is saved to `<OUTPUT_DIR>/final/tree_crowns.gpkg` in Google Drive.
 
-```bash
-cp your_image.tif data/input/
-```
+## Running Individual Steps
 
-### 2. Update Configuration
-
-Edit `config.yaml` to point to your input file:
-
-```yaml
-input:
-  image_path: "data/input/your_image.tif"
-```
-
-### 3. Run Pipeline
+The Colab notebook runs all stages by default. To resume a previous run, replace the pipeline command in its execution cell with one of the following:
 
 ```bash
-python main.py --config config.yaml
-```
-
-Output will be saved to `output/final/tree_crowns.gpkg`
-
-## Usage
-
-### Run Complete Pipeline
-
-```bash
-python main.py --config config.yaml
-```
-
-### Run Specific Steps
-
-```bash
-# Only tiling
-python main.py --config config.yaml --step tiling
-
-# Tiling + Inference
-python main.py --config config.yaml --step tiling inference
-
-# Only NMS (if intermediate files exist)
-python main.py --config config.yaml --step nms
-```
-
-### Validate Configuration
-
-```bash
-python main.py --config config.yaml --validate-only
+python main.py --config /content/itcd-domain-aware/config_colab.yaml --step tiling
+python main.py --config /content/itcd-domain-aware/config_colab.yaml --step inference
+python main.py --config /content/itcd-domain-aware/config_colab.yaml --step conversion
+python main.py --config /content/itcd-domain-aware/config_colab.yaml --step nms
 ```
 
 ## Configuration
@@ -174,11 +134,12 @@ output/
 
 ## Requirements
 
-- Python 3.11.10
-- CUDA-capable GPU (recommended for inference)
-- GeoTIFF input with spatial reference system
-- ~8GB RAM minimum
-- ~2GB disk space for model weights
+- Google account dan Google Drive
+- Google Colab runtime dengan GPU aktif untuk inference
+- GeoTIFF input dengan spatial reference system
+- Model directory yang berisi `config.yaml` dan `model_best_AP50.pth`
+
+Dependency Colab dipasang langsung dari `notebooks/ITCD_Domain_Aware.ipynb`: `segment-geospatial` dan Detectron2. Tidak diperlukan `requirements.txt`.
 
 ## Project Structure
 
@@ -187,25 +148,21 @@ itcd-domain-aware/
 ├── README.md
 ├── LICENSE
 ├── .gitignore
-├── environment.yml
-├── requirements.txt
 ├── config.yaml
 ├── main.py
-├── src/
-│   ├── __init__.py
+├── src/                         # Source pipeline yang dipakai Colab
 │   ├── tiling.py
 │   ├── inference.py
 │   ├── conversion.py
 │   ├── spatial_nms.py
 │   ├── dc_gnms.py
 │   └── utils.py
-├── data/
-│   └── input/
+├── notebooks/
+│   ├── ITCD_Domain_Aware.ipynb # Launcher Google Colab
+│   └── README.md
 ├── models/
 │   └── README.md
-├── output/
-├── notebooks/          # Original Jupyter notebooks
-└── sample/             # Sample output (for reference)
+└── sample/                      # Contoh hasil
 ```
 
 ## Troubleshooting
@@ -244,21 +201,12 @@ postprocessing:
 
 ## Example Workflow
 
-For the sample data:
+In Google Colab:
 
-```bash
-# 1. Activate environment
-conda activate itcd-domain-aware
-
-# 2. Update config to use sample data
-# Edit config.yaml: input -> image_path: "sample/cmh01.tif"
-
-# 3. Run pipeline
-python main.py --config config.yaml
-
-# 4. Check output
-ls output/final/tree_crowns.gpkg
-```
+1. Place a GeoTIFF at `MyDrive/ITCD_Domain_Aware/input/your_image.tif`.
+2. Place model files at `MyDrive/ITCD_Domain_Aware/models/250525_R50_RESTOR_fold_0/`.
+3. Open and run [`notebooks/ITCD_Domain_Aware.ipynb`](notebooks/ITCD_Domain_Aware.ipynb).
+4. Retrieve the result from `MyDrive/ITCD_Domain_Aware/output/final/tree_crowns.gpkg`.
 
 ## Citation
 
