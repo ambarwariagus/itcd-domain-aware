@@ -62,7 +62,7 @@ python main.py --config /content/itcd-domain-aware/config_colab.yaml --step nms
 
 ## Configuration
 
-The `config.yaml` file contains all pipeline parameters:
+The Colab notebook creates `config_colab.yaml` automatically from the selected Google Drive paths. It contains all pipeline parameters:
 
 ### Key Settings
 
@@ -109,7 +109,7 @@ The `config.yaml` file contains all pipeline parameters:
 - Cross-zone filtering
 - Recommended for: Complex tiling scenarios with heavy overlap
 
-Select the algorithm in `config.yaml`:
+Select the algorithm in the notebook configuration cell:
 
 ```yaml
 postprocessing:
@@ -148,7 +148,6 @@ itcd-domain-aware/
 ├── README.md
 ├── LICENSE
 ├── .gitignore
-├── config.yaml
 ├── main.py
 ├── src/                         # Source pipeline yang dipakai Colab
 │   ├── tiling.py
@@ -160,18 +159,17 @@ itcd-domain-aware/
 ├── notebooks/
 │   ├── ITCD_Domain_Aware.ipynb # Launcher Google Colab
 │   └── README.md
-├── models/
-│   └── README.md
-└── sample/                      # Contoh hasil
+└── models/
+    └── README.md                # Panduan penyimpanan model di Google Drive
 ```
 
 ## Troubleshooting
 
 ### Model Not Found Error
 
-Ensure you've downloaded the model weights and placed them in the correct directory:
+Ensure the model files are in the Google Drive directory configured in the notebook:
 ```
-models/250525_R50_RESTOR_fold_0/
+MyDrive/ITCD_Domain_Aware/models/250525_R50_RESTOR_fold_0/
 ```
 
 ### CUDA/GPU Issues
@@ -184,7 +182,7 @@ MODEL:
 
 ### Memory Issues
 
-Reduce tile size in `config.yaml`:
+Reduce tile size in the notebook configuration cell:
 ```yaml
 tiling:
   tile_size: [512, 512]

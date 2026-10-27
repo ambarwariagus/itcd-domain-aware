@@ -17,15 +17,4 @@ MyDrive/ITCD_Domain_Aware/
 └── output/
 ```
 
-Update the paths in the notebook configuration cell if you use a different Google Drive directory.
-
-## Original Development Notebooks
-
-The following notebooks are retained only as development references:
-
-- `_tiling.ipynb` — tiling with samgeo
-- `_prepare_label.ipynb` — Detectron2 inference and RLE-to-LabelMe conversion
-- `_spatial_nms.ipynb` — Spatial NMS implementation
-- `dc_gnms_algorithm.ipynb` — DC-GNMS implementation
-
-The production source code is maintained in `src/`; do not edit pipeline logic directly in the Colab launcher.
+Update the paths in the notebook configuration cell if you use a different Google Drive directory. The production source code is maintained in `src/`; do not edit pipeline logic directly in the Colab launcher.

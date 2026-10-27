@@ -23,21 +23,34 @@ wheels/
 # Conda
 .conda/
 
-# Data files
-data/input/*.tif
-data/input/*.tiff
+# Google Drive data and generated sample/output artifacts
+data/
+sample/
+output/
 *.tif
 *.tiff
 *.aux.xml
+*.geojson
+*.gpkg
 
 # Model weights
 models/**/*.pth
 models/**/*.pkl
 
-# Output files
-output/**
-!output/.gitkeep
-!output/README.md
+# Local environments, temporary validation, and generated reports
+environment.yml
+requirements.txt
+config_test.yaml
+test_*.py
+validate.bat
+validate.sh
+*_REPORT.md
+*_REPORT.txt
+*_SUMMARY.md
+START_HERE.md
+QUICK_REFERENCE.md
+DEPLOYMENT_SUCCESS.md
+FINAL_SUCCESS_REPORT.txt
 
 # Logs
 *.log
