@@ -29,3 +29,6 @@ keywords = ["remote-sensing", "tree-crown-detection", "detectron2", "spatial-nms
 [project.urls]
 Homepage = "https://github.com/ambarwariagus/itcd-domain-aware"
 Repository = "https://github.com/ambarwariagus/itcd-domain-aware"
+
+[tool.setuptools.packages.find]
+include = ["itcd*"]
