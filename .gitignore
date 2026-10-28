@@ -23,9 +23,10 @@ wheels/
 # Conda
 .conda/
 
-# Google Drive data and generated sample/output artifacts
+# Google Drive data, models, sample, and generated artifacts
 data/
 sample/
+models/
 output/
 *.tif
 *.tiff
@@ -33,13 +34,8 @@ output/
 *.geojson
 *.gpkg
 
-# Model weights
-models/**/*.pth
-models/**/*.pkl
-
 # Local environments, temporary validation, and generated reports
 environment.yml
-requirements.txt
 config_test.yaml
 test_*.py
 validate.bat

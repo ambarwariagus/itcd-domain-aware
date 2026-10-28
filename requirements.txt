@@ -1,0 +1,10 @@
+torch
+torchvision
+opencv-python-headless
+rasterio
+geopandas
+shapely>=2.0.0
+scikit-image
+pycocotools
+segment-geospatial
+tqdm

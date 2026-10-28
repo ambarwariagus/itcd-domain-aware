@@ -1,248 +1,213 @@
-# ITCD Domain-Aware Tree Crown Detection
+# ITCD Domain-Aware: Inference & Geospatial Pipeline
 
-Automated pipeline for Individual Tree Crown Detection (ITCD) from aerial imagery using Detectron2 and spatial NMS algorithms.
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Framework: Detectron2](https://img.shields.io/badge/Framework-Detectron2-orange.svg)](https://github.com/facebookresearch/detectron2)
 
-**Author:** Agus Ambarwari
+A modular Python framework for automated **Individual Tree Crown Delineation (ITCD)** from high-resolution aerial and satellite imagery using Detectron2. The pipeline converts instance segmentation binary masks (COCO RLE) into geospatial polygon layers, performs tile edge-margin filtering, executes **Spatial Non-Maximum Suppression (Spatial NMS)** to eliminate tile-boundary duplicates, and exports production-ready GeoPackage (`.gpkg`) files.
 
-## Features
+---
 
-- 🖼️ Automatic image tiling with overlap
-- 🤖 Deep learning inference using Detectron2
-- 🌍 Geospatial processing with coordinate transformation
-- 🎯 Two NMS algorithms: Spatial NMS (Ball et al.) and DC-GNMS
-- ⚙️ Configuration-driven workflow
-- 📦 Single command execution
+## Pipeline Overview
 
-## Google Colab
-
-Project ini dirancang untuk dijalankan melalui [Google Colab](notebooks/ITCD_Domain_Aware.ipynb). Notebook akan me-mount Google Drive, clone source code terbaru dari repository ini, menginstal `segment-geospatial` dan Detectron2, membuat konfigurasi, lalu menjalankan pipeline.
-
-1. Buka `notebooks/ITCD_Domain_Aware.ipynb` di Google Colab dan aktifkan GPU.
-2. Simpan input GeoTIFF dan model weights di Google Drive.
-3. Ubah `DRIVE_ROOT`, `INPUT_IMAGE`, dan `MODEL_DIR` pada bagian konfigurasi notebook.
-4. Jalankan cell secara berurutan.
-
-### Model Weights
-
-Download the pre-trained Detectron2 model from Google Drive:
-
-**[📥 Download Model Weights (Google Drive)](https://drive.google.com/YOUR_LINK_HERE)**
-
-Extract the downloaded file to the `models/` directory. The structure should be:
-
-```
-models/
-└── 250525_R50_RESTOR_fold_0/
-    ├── config.yaml
-    └── model_best_AP50.pth
+```mermaid
+flowchart LR
+    A["Raw Orthophoto (.tif)"] --> B["Split Raster (Tiling)"]
+    B --> C["Detectron2 Inference"]
+    C --> D["COCO RLE -> LabelMe JSON"]
+    D --> E["Georeferencing (GeoJSON)"]
+    E --> F["Edge Shift & Spatial NMS"]
+    F --> G["Final GeoPackage (.gpkg)"]
 ```
 
-See [models/README.md](models/README.md) for detailed instructions.
+1. **Split Raster (Tiling):** Slices high-resolution orthophotos into fixed-size overlapping GeoTIFF tiles.
+2. **Deep Learning Inference:** Runs batch segmentation inference using fine-tuned Detectron2 models to generate COCO RLE masks.
+3. **Mask Decoding:** Vectorizes RLE bitmasks into exact LabelMe JSON pixel polygon vertices.
+4. **Georeferencing:** Projects pixel coordinates to geographic coordinates using the affine transformation matrix and spatial reference system (CRS) of each tile.
+5. **Tile Edge Shift & Spatial NMS:** Removes boundary-truncated crowns along tile edges, resolves inter-tile polygon overlaps using intersection-over-union (IoU), and merges clean polygons into a unified GeoPackage.
+
+---
+
+## Repository Structure
+
+```text
+itcd-domain-aware/
+├── itcd/                       # Core Python package
+│   ├── __init__.py             # Package exports
+│   ├── config.py               # ITCDInferenceConfig dataclass
+│   ├── tiling.py               # Raster splitting and tiling utilities
+│   ├── detector.py             # Detectron2 inference engine
+│   ├── converter.py            # RLE bitmask to polygon vectorization
+│   ├── georeference.py         # Pixel to GIS coordinate projection
+│   ├── spatial_nms.py          # Edge filtering, spatial NMS, and GPKG export
+│   └── pipeline.py             # Automated end-to-end pipeline runner
+├── notebooks/
+│   └── run_inference.ipynb     # Google Colab execution orchestrator
+├── models/                     # Model weights and configuration directory
+│   └── 250525_R50_RESTOR_fold_0/
+│       ├── config.yaml
+│       └── model_best_AP50.pth
+├── sample/                     # Sample data for testing
+│   ├── cmh01.tif
+│   └── cmh01.tif.aux.xml
+├── .gitignore
+├── LICENSE
+├── pyproject.toml              # Build system and package specification
+├── README.md                   # Project documentation
+└── requirements.txt            # Python dependencies
+```
+
+---
+
+## Installation
+
+### 1. Prerequisites
+- Python 3.9+
+- CUDA-enabled GPU (recommended for inference)
+- GDAL / GEOS dependencies (standard on Linux/Colab, or via Conda on Windows)
+
+### 2. Install Dependencies
+```bash
+git clone https://github.com/ambarwariagus/itcd-domain-aware.git
+cd itcd-domain-aware
+
+# Install core dependencies
+pip install -r requirements.txt
+
+# Install Detectron2 (Linux/Colab)
+python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
+# Install ITCD in editable mode
+pip install -e .
+```
+
+---
 
 ## Quick Start
 
-1. Open [`notebooks/ITCD_Domain_Aware.ipynb`](notebooks/ITCD_Domain_Aware.ipynb) in Google Colab.
-2. Set the Colab runtime to **GPU**.
-3. Run the Drive mount, GitHub clone, and dependency-installation cells.
-4. Update the Google Drive paths in the configuration cell.
-5. Run the pipeline cell.
+### Python API
 
-The final GeoPackage is saved to `<OUTPUT_DIR>/final/tree_crowns.gpkg` in Google Drive.
+Run the end-to-end pipeline in Python:
 
-## Running Individual Steps
+```python
+from itcd import ITCDInferenceConfig, run_full_pipeline
 
-The Colab notebook runs all stages by default. To resume a previous run, replace the pipeline command in its execution cell with one of the following:
+# 1. Initialize configuration
+config = ITCDInferenceConfig(
+    trained_model_dir="models/250525_R50_RESTOR_fold_0",
+    score_thresh_test=0.5,
+    nms_thresh_test=0.3,
+    tile_size=1024,
+    overlap=256,
+    edge_shift_meters=1.0,
+    spatial_iou_threshold=0.5,
+    spatial_conf_threshold=0.5,
+    area_threshold_m2=2.0
+)
 
-```bash
-python main.py --config /content/itcd-domain-aware/config_colab.yaml --step tiling
-python main.py --config /content/itcd-domain-aware/config_colab.yaml --step inference
-python main.py --config /content/itcd-domain-aware/config_colab.yaml --step conversion
-python main.py --config /content/itcd-domain-aware/config_colab.yaml --step nms
+# 2. Execute end-to-end
+cleaned_gdf = run_full_pipeline(
+    orthophoto_path="sample/cmh01.tif",
+    work_dir="sample/tiles",
+    config=config,
+    output_gpkg="output/tree_crowns.gpkg"
+)
+
+print(f"Detected {len(cleaned_gdf)} tree crowns.")
 ```
 
-## Configuration
+### Google Colab
 
-The Colab notebook creates `config_colab.yaml` automatically from the selected Google Drive paths. It contains all pipeline parameters:
+Use the provided notebook [`notebooks/run_inference.ipynb`](notebooks/run_inference.ipynb) for GPU-accelerated execution on Google Colab:
+1. Open the notebook in Google Colab and set runtime to **GPU (T4 or higher)**.
+2. Mount Google Drive and set paths for the input GeoTIFF and model directory.
+3. Run all cells to process the raster and export the final GeoPackage directly to Google Drive.
 
-### Key Settings
+---
 
-**Input:**
-- `image_path`: Path to input GeoTIFF
+## Configuration Reference
 
-**Tiling:**
-- `tile_size`: Tile dimensions (default: [1024, 1024])
-- `overlap`: Overlap pixels (default: 256)
+The `ITCDInferenceConfig` class in [`itcd/config.py`](itcd/config.py) provides full control over all pipeline stages:
 
-**Model:**
-- `config_path`: Path to Detectron2 config
-- `weights_path`: Path to model weights
-- `score_threshold`: Detection confidence threshold (default: 0.5)
-- `nms_threshold`: NMS threshold during inference (default: 0.3)
+| Parameter | Type | Default | Description |
+|:---|:---:|:---:|:---|
+| `trained_model_dir` | `str` | *Required* | Path to folder containing model `config.yaml` and weights |
+| `config_file` | `str` | `""` | Optional explicit path to Detectron2 `config.yaml` |
+| `model_weights` | `str` | `""` | Optional explicit path to model `.pth` weights |
+| `score_thresh_test` | `float` | `0.5` | Minimum confidence score threshold during model inference |
+| `nms_thresh_test` | `float` | `0.3` | NMS threshold used during model ROI head evaluation |
+| `tile_size` | `int` | `1024` | Tile dimensions in pixels (`1024x1024`) |
+| `overlap` | `int` | `256` | Overlap in pixels between adjacent tiles |
+| `edge_shift_meters` | `float` | `1.0` | Inward margin (meters) to drop edge-truncated crowns |
+| `spatial_iou_threshold`| `float` | `0.5` | Polygon IoU threshold for Spatial NMS deduplication |
+| `spatial_conf_threshold` | `float` | `0.5` | Minimum confidence score retained in final layer |
+| `area_threshold_m2` | `float` | `2.0` | Minimum crown area in m² to filter noise polygons |
+| `polygon_tolerance` | `float` | `0.0` | Polygon contour approximation tolerance |
 
-**Post-processing:**
-- `nms_algorithm`: Choose between `spatial_nms` or `dc_gnms`
+---
 
-**Spatial NMS Parameters:**
-- `iou_threshold`: IoU threshold for overlap removal (default: 0.5)
-- `confidence_threshold`: Minimum confidence score (default: 0.5)
-- `area_threshold`: Minimum area in m² (default: 2.0)
-- `edge_shift`: Edge margin in meters (default: 1.0)
+## Step-by-Step Modular API
 
-**DC-GNMS Parameters:**
-- `box_filter_shift`: Center/edge zone margin (default: 1.0)
-- `overlap_threshold`: IoA/IoMin threshold (default: 0.5)
-- `cross_zone_threshold`: Cross-zone overlap tolerance (default: 0.15)
+For advanced workflows, individual pipeline stages can be executed independently:
 
-## NMS Algorithms
+```python
+from itcd import (
+    run_tiling,
+    ITCDDetector,
+    convert_rle_to_labelme,
+    batch_labelme_to_geojson,
+    stitch_and_clean_pipeline
+)
 
-### Spatial NMS (Ball et al., 2023)
+# Step 1: Split orthophoto into tiles
+run_tiling("sample/cmh01.tif", "sample/tiles", tile_size=1024, overlap=256)
 
-- Edge filtering with bounding box shift
-- IoU-based overlap removal
-- Confidence score filtering
-- Recommended for: Simple overlapping scenarios
+# Step 2: Detectron2 batch inference
+detector = ITCDDetector("models/.../config.yaml", "models/.../model_best_AP50.pth")
+detector.predict_directory("sample/tiles", "sample/tiles/predictions")
 
-### DC-GNMS (Divide-and-Conquer Geometric NMS)
+# Step 3: Decode RLE masks to LabelMe JSON
+convert_rle_to_labelme("sample/tiles/predictions", "sample/tiles/labelme_output")
 
-- Center/Edge zone division
-- Intra-tile and Inter-tile NMS
-- Cross-zone filtering
-- Recommended for: Complex tiling scenarios with heavy overlap
+# Step 4: Georeference pixel coordinates to GeoJSON
+batch_labelme_to_geojson("sample/tiles/labelme_output", "sample/tiles", "sample/tiles/geojson")
 
-Select the algorithm in the notebook configuration cell:
-
-```yaml
-postprocessing:
-  nms_algorithm: "spatial_nms"  # or "dc_gnms"
+# Step 5: Spatial NMS and GeoPackage export
+stitch_and_clean_pipeline(
+    geojson_dir="sample/tiles/geojson",
+    tif_dir="sample/tiles",
+    output_gpkg="output/tree_crowns.gpkg",
+    shift=1.0,
+    iou_threshold=0.5,
+    confidence_threshold=0.5,
+    area_threshold=2.0
+)
 ```
 
-## Output Structure
-
-```
-output/
-├── tiles/              # Tiled images from step 1
-│   ├── tile_0_0.tif
-│   ├── tile_0_1.tif
-│   └── predictions/    # Model predictions
-├── geojson/            # GeoJSON with georeferencing
-│   ├── tile_0_0.geojson
-│   └── tile_0_1.geojson
-├── final/              # Final merged results
-│   └── tree_crowns.gpkg
-└── pipeline.log        # Execution log
-```
-
-## Requirements
-
-- Google account dan Google Drive
-- Google Colab runtime dengan GPU aktif untuk inference
-- GeoTIFF input dengan spatial reference system
-- Model directory yang berisi `config.yaml` dan `model_best_AP50.pth`
-
-Dependency Colab dipasang langsung dari `notebooks/ITCD_Domain_Aware.ipynb`: `segment-geospatial` dan Detectron2. Tidak diperlukan `requirements.txt`.
-
-## Project Structure
-
-```
-itcd-domain-aware/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── main.py
-├── src/                         # Source pipeline yang dipakai Colab
-│   ├── tiling.py
-│   ├── inference.py
-│   ├── conversion.py
-│   ├── spatial_nms.py
-│   ├── dc_gnms.py
-│   └── utils.py
-├── notebooks/
-│   ├── ITCD_Domain_Aware.ipynb # Launcher Google Colab
-│   └── README.md
-└── models/
-    └── README.md                # Panduan penyimpanan model di Google Drive
-```
-
-## Troubleshooting
-
-### Model Not Found Error
-
-Ensure the model files are in the Google Drive directory configured in the notebook:
-```
-MyDrive/ITCD_Domain_Aware/models/250525_R50_RESTOR_fold_0/
-```
-
-### CUDA/GPU Issues
-
-If you encounter GPU issues, edit the Detectron2 config to use CPU:
-```yaml
-MODEL:
-  DEVICE: "cpu"
-```
-
-### Memory Issues
-
-Reduce tile size in the notebook configuration cell:
-```yaml
-tiling:
-  tile_size: [512, 512]
-```
-
-### No Output Polygons
-
-Check the confidence threshold - it might be too high:
-```yaml
-postprocessing:
-  spatial_nms:
-    confidence_threshold: 0.3  # Lower value
-```
-
-## Example Workflow
-
-In Google Colab:
-
-1. Place a GeoTIFF at `MyDrive/ITCD_Domain_Aware/input/your_image.tif`.
-2. Place model files at `MyDrive/ITCD_Domain_Aware/models/250525_R50_RESTOR_fold_0/`.
-3. Open and run [`notebooks/ITCD_Domain_Aware.ipynb`](notebooks/ITCD_Domain_Aware.ipynb).
-4. Retrieve the result from `MyDrive/ITCD_Domain_Aware/output/final/tree_crowns.gpkg`.
+---
 
 ## Citation
 
-If you use this code in your research, please cite:
+If you use this codebase, methodology, or model in your research, please cite our published paper:
+
+> **A. Ambarwari, E. Husni, R. Darmakusuma, and D. Suwardhi**, "Domain-Aware Transfer Learning With SAM-Assisted Mask R-CNN for Urban Tree Crown Delineation From UAV Orthophotos," in *IEEE Access*, vol. 13, pp. 181286-181301, 2025, doi: [10.1109/ACCESS.2025.3619949](https://doi.org/10.1109/ACCESS.2025.3619949).
 
 ```bibtex
-@software{itcd_domain_aware,
-  author = {Ambarwari, Agus},
-  title = {ITCD Domain-Aware: Tree Crown Detection Pipeline},
-  year = {2026},
-  url = {https://github.com/ambarwariagus/itcd-domain-aware}
+@article{ambarwari2025domain,
+  author={Ambarwari, Agus and Husni, Emir and Darmakusuma, Reza and Suwardhi, Deni},
+  journal={IEEE Access}, 
+  title={Domain-Aware Transfer Learning With SAM-Assisted Mask R-CNN for Urban Tree Crown Delineation From UAV Orthophotos}, 
+  year={2025},
+  volume={13},
+  pages={181286--181301},
+  doi={10.1109/ACCESS.2025.3619949}
 }
 ```
+
+---
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-
-- Ball et al. (2023) for the Spatial NMS algorithm
-- Detectron2 team for the detection framework
-- segment-geospatial for the tiling utilities
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Contact
-
-For questions or issues, please open an issue on GitHub or contact:
-- **Author:** Agus Ambarwari
-- **Email:** ambarwariagus@gmail.com
-
-## Changelog
-
-### Version 1.0.0 (2026-10-27)
-- Initial release
-- Support for Spatial NMS and DC-GNMS algorithms
-- Configuration-driven pipeline
-- Complete CLI interface
+**Author:** Agus Ambarwari ([ambarwariagus@gmail.com](mailto:ambarwariagus@gmail.com))
