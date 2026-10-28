@@ -48,7 +48,7 @@ itcd-domain-aware/
 │   └── 250525_R50_RESTOR_fold_0/
 ├── sample/                     # Sample datasets directory
 │   ├── README.md               # Dataset download guide (Google Drive)
-│   └── cmh01.tif
+│   └── danum.tif
 ├── .gitignore
 ├── LICENSE
 ├── pyproject.toml              # Build system and package specification
@@ -86,7 +86,7 @@ Pre-trained Detectron2 model weights (`model_best_AP50.pth`, ~351 MB) are hosted
 - Place the downloaded `250525_R50_RESTOR_fold_0/` directory into `models/`. See [`models/README.md`](models/README.md) for details.
 
 ### 4. Sample Datasets
-High-resolution aerial GeoTIFF test rasters (`cmh01.tif`, `danum.tif`, etc.) are hosted on Google Drive:
+High-resolution aerial GeoTIFF test rasters (`danum.tif`, etc.) are hosted on Google Drive:
 - 📥 **[Download Sample Datasets (Google Drive)](https://drive.google.com/drive/folders/19z289BGBoVkyrhUSGPWl5eASGSdl-P4R?usp=sharing)**
 - Place the downloaded GeoTIFF files into `sample/`. See [`sample/README.md`](sample/README.md) for details.
 

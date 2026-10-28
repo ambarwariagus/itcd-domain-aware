@@ -1,6 +1,6 @@
 # Sample Datasets
 
-Due to GitHub's repository and file size limits, large high-resolution aerial GeoTIFF rasters (`cmh01.tif`, `danum.tif`, etc., ~100MB to 300MB+ each) are hosted externally on Google Drive.
+Due to GitHub's repository and file size limits, large high-resolution aerial GeoTIFF rasters (`danum.tif`, etc., ~100MB) are hosted externally on Google Drive.
 
 ## 📥 Download Link
 
@@ -17,10 +17,7 @@ After downloading, place the sample `.tif` files directly inside this `sample/` 
 ```text
 sample/
 ├── README.md
-├── cmh01.tif               # Sample UAV orthophoto GeoTIFF (~314 MB)
-├── cmh01.tif.aux.xml       # Raster metadata / statistics
-├── danum.tif               # Tropical forest canopy GeoTIFF (~100 MB)
-└── danum.tif.aux.xml       # Raster metadata / statistics
+└── danum.tif               # Tropical forest canopy GeoTIFF (~100 MB)
 ```
 
 ---
@@ -54,7 +51,7 @@ config = ITCDInferenceConfig(
 # 2. Run inference on sample raster
 cleaned_gdf = run_full_pipeline(
     orthophoto_path="sample/cmh01.tif",
-    work_dir="sample/tiles",
+    work_dir="sample",
     config=config,
     output_gpkg="sample/tree_crowns.gpkg"
 )
