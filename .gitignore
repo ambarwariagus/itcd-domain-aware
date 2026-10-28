@@ -23,15 +23,18 @@ wheels/
 # Conda
 .conda/
 
-# Google Drive data, sample, and generated artifacts
+# Google Drive data, output, and generated artifacts
 data/
-sample/
 output/
 *.tif
 *.tiff
 *.aux.xml
 *.geojson
 *.gpkg
+
+# Ignore sample rasters and subdirectories, keep README.md
+sample/*
+!sample/README.md
 
 # Ignore model weight checkpoints and subdirectories, keep README.md
 models/*

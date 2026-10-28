@@ -43,13 +43,12 @@ itcd-domain-aware/
 │   └── pipeline.py             # Automated end-to-end pipeline runner
 ├── notebooks/
 │   └── run_inference.ipynb     # Google Colab execution orchestrator
-├── models/                     # Model weights and configuration directory
+├── models/                     # Model weights directory
+│   ├── README.md               # Model download guide (Google Drive)
 │   └── 250525_R50_RESTOR_fold_0/
-│       ├── config.yaml
-│       └── model_best_AP50.pth
-├── sample/                     # Sample data for testing
-│   ├── cmh01.tif
-│   └── cmh01.tif.aux.xml
+├── sample/                     # Sample datasets directory
+│   ├── README.md               # Dataset download guide (Google Drive)
+│   └── cmh01.tif
 ├── .gitignore
 ├── LICENSE
 ├── pyproject.toml              # Build system and package specification
@@ -85,6 +84,11 @@ pip install -e .
 Pre-trained Detectron2 model weights (`model_best_AP50.pth`, ~351 MB) are hosted on Google Drive:
 - 📥 **[Download Model Weights (Google Drive)](https://drive.google.com/drive/folders/1zdY9J_X9LA5xmOaeynx_SOKfoS9aQCF9?usp=sharing)**
 - Place the downloaded `250525_R50_RESTOR_fold_0/` directory into `models/`. See [`models/README.md`](models/README.md) for details.
+
+### 4. Sample Datasets
+High-resolution aerial GeoTIFF test rasters (`cmh01.tif`, `danum.tif`, etc.) are hosted on Google Drive:
+- 📥 **[Download Sample Datasets (Google Drive)](https://drive.google.com/drive/folders/19z289BGBoVkyrhUSGPWl5eASGSdl-P4R?usp=sharing)**
+- Place the downloaded GeoTIFF files into `sample/`. See [`sample/README.md`](sample/README.md) for details.
 
 ---
 
