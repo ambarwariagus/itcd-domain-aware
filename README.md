@@ -113,9 +113,9 @@ config = ITCDInferenceConfig(
 # 2. Execute end-to-end
 cleaned_gdf = run_full_pipeline(
     orthophoto_path="sample/cmh01.tif",
-    work_dir="sample/tiles",
+    work_dir="sample",
     config=config,
-    output_gpkg="output/tree_crowns.gpkg"
+    output_gpkg="sample/tree_crowns.gpkg"
 )
 
 print(f"Detected {len(cleaned_gdf)} tree crowns.")
