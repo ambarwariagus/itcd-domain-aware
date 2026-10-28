@@ -62,7 +62,7 @@ itcd-domain-aware/
 ## Installation
 
 ### 1. Prerequisites
-- Python 3.9+
+- Python 3.11+
 - CUDA-enabled GPU (recommended for inference)
 - GDAL / GEOS dependencies (standard on Linux/Colab, or via Conda on Windows)
 
