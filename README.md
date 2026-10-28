@@ -81,6 +81,11 @@ python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 pip install -e .
 ```
 
+### 3. Model Weights
+Pre-trained Detectron2 model weights (`model_best_AP50.pth`, ~351 MB) are hosted on Google Drive:
+- 📥 **[Download Model Weights (Google Drive)](https://drive.google.com/drive/folders/1zdY9J_X9LA5xmOaeynx_SOKfoS9aQCF9?usp=sharing)**
+- Place the downloaded `250525_R50_RESTOR_fold_0/` directory into `models/`. See [`models/README.md`](models/README.md) for details.
+
 ---
 
 ## Quick Start

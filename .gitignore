@@ -23,16 +23,22 @@ wheels/
 # Conda
 .conda/
 
-# Google Drive data, models, sample, and generated artifacts
+# Google Drive data, sample, and generated artifacts
 data/
 sample/
-models/
 output/
 *.tif
 *.tiff
 *.aux.xml
 *.geojson
 *.gpkg
+
+# Ignore model weight checkpoints and subdirectories, keep README.md
+models/*
+!models/README.md
+models/**/*.pth
+models/**/*.pkl
+models/**/*.pt
 
 # Local environments, temporary validation, and generated reports
 environment.yml
